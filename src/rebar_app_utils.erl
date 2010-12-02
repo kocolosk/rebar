@@ -89,7 +89,12 @@ app_applications(AppFile) ->
 app_vsn(AppFile) ->
     case load_app_file(AppFile) of
         {ok, _, AppInfo} ->
-            proplists:get_value(vsn, AppInfo);
+            case proplists:get_value(vsn, AppInfo) of
+                git ->
+                    string:strip(os:cmd("git describe --tags --always"), right, $\n);
+                Else ->
+                    Else
+            end;
         {error, Reason} ->
             ?ABORT("Failed to extract vsn from ~s: ~p\n",
                    [AppFile, Reason])
